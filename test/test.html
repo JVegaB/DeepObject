@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <style>
+            body {
+                background-color: #f0f5f9;
+            }
+            h2 {
+                font-family: monospace;
+                letter-spacing: 3px;
+                font-weight: lighter;
+                text-align: center;
+                margin-top: 92px;
+            }
+            code {
+                background-color: #1e2022;
+                width: 710px;
+                display: block;
+                margin: auto;
+                padding: 8px;
+                height: 390px;
+                border: 4px outset #52616b;
+            }
+            .green {
+                color: green;
+            }
+            .red {
+                color: red;
+            }
+            code span {
+                padding-left: 16px;
+                position: relative;
+                display: block;
+            }
+            code span::after {
+                content: '>';
+                color: #888888;
+                position: absolute;
+                left: 3px;
+            }
+            .help {
+                text-align: center;
+                font-style: italic;
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <section>
+        <header>
+            <h2>FUNCIONALITY TESTS LOGS</h2>
+        </header>
+        <article>
+            <code id="logs">
+            </code>
+        </article>
+        <p class="help">
+            For improvments or to report a bug, <a target="_blank" href="https://github.com/JVegaB/DeepObject/issues">click here.</a>
+        </p>
+    </section>
+    <script defer src="../src/DeepObject.js"></script>
+    <script defer src="tests.js"></script>
+</html>
