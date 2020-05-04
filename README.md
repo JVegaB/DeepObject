@@ -24,7 +24,7 @@ When a __deep property__ is set, its path is also defined in the main object.
 
 ```javascript
 
-obj { level1 { level2 { level3 { { name: 'level 3' } } } } }
+obj { level1: { level2: { level3: { name: 'level 3' } } } }
 ```
 
 Initializiation
@@ -45,8 +45,7 @@ var obj = DeepObject(10);
 
 obj.one.two.three = 3;
 
-obj + one.two.three === 13 // Expected output: true
-
+obj + obj.one.two.three === 13 // Expected output: true
 ```
 
 ```javascript
@@ -133,6 +132,8 @@ __NOTE__: Avoid using `JSON.stringify` method directly with a `Deep Object`. Sin
 
 To get a native `Object literal {}`, use the method `getLiteral`. This can be safely use in `JSON` methods.
 
+The property `value` contains the value of a node from a `DeepObject`. Its children are defined as key-value pair.
+
 ```javascript
 const obj = DeepObject(10);
 
@@ -160,7 +161,7 @@ obj.getLiteral(); /* Expected value:
 */
 ```
 
-__NOTE__: Defining a path by just casting `obj.emptyLevel.emptyLevel2.emptyLevel3`, will also define its path.
+__NOTE__: Casting `obj.emptyLevel.emptyLevel2.emptyLevel3` in a `DeepObject`, will also define its path in its Object literal representation.
 
 
 Reserved properties
