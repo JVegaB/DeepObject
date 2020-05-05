@@ -97,6 +97,20 @@ Test(function (defaultTests) {
 });
 
 Test(function (defaultTests) {
+    // Test when a DeepObject stores a null value, to identify falsy value.
+    // natively `(null|undefined) != false`
+    var obj = DeepObject();
+    var objWithNull = DeepObject(null);
+    defaultTests.push(
+        obj.valueOf() === undefined,
+        obj != null,
+        objWithNull.valueOf() === null,
+        objWithNull != false,
+    );
+    Assert (defaultTests, 'Behavior: Empty falsy equality.');
+});
+
+Test(function (defaultTests) {
     // Test numeric strict equality
     var one = DeepObject(1);
     defaultTests.push(
@@ -179,6 +193,27 @@ Test(function (defaultTests) {
         withDefaults.data.location.locale == 'es-MX',
     )
     Assert (defaultTests, 'Initialization: With default data.');
+});
+
+Test(function (defaultTests) {
+    // Test Object literals as default value.
+    var obj = DeepObject();
+    obj.setValue({
+        prop: 10
+    });
+    var undefinedValue = false;
+    var tentativeUndefined = obj.valueOf().newProperty;
+    try {
+        tentativeUndefined.addProperty = 2;
+    } catch (error) {
+        undefinedValue = true;
+    };
+    defaultTests.push(
+        undefinedValue,
+        obj.valueOf().prop === 10,
+        obj.prop.valueOf() === undefined,
+    );
+    Assert (defaultTests, 'Initialization: Object literal.');
 });
 
 Test(function (defaultTests) {
