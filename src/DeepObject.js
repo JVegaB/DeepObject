@@ -17,20 +17,25 @@ window.DeepObject = (function () {
      * @param {any} raw: Value that represent this `ProxyValue`. 
      */
     function ProxyValue (raw) {
+        let that = this;
+        // If the raw value its a function, its properties will be modified instead of this.
+        if (typeof raw == 'function') {
+            that = raw;
+        }
         //This property stores the ray value.
-        this[SYMBOLS.raw] = raw;
+        that[SYMBOLS.raw] = raw;
         // Sets the prototype of the raw value to this, so all the methods can be used.
-        Object.setPrototypeOf(this, Object.getPrototypeOf(this[SYMBOLS.raw] || {}))
+        Object.setPrototypeOf(that, Object.getPrototypeOf(that[SYMBOLS.raw] || {}))
         // Identify this object as a proxy.
-        this[SYMBOLS.isProxyValue] = true;
+        that[SYMBOLS.isProxyValue] = true;
         // Stores the childs without triggering the proxy.
         const literal = {};
         // Getter of the raw value.
-        this.valueOf = function () { return this[SYMBOLS.raw] };
+        that.valueOf = function () { return this[SYMBOLS.raw] };
         // Setter of the raw value.
-        this.setValue = function (value) { this[SYMBOLS.raw] = value };
+        that.setValue = function (value) { this[SYMBOLS.raw] = value };
         // Returns an object literal that represent this PrixyValue.
-        this.getLiteral = function () {
+        that.getLiteral = function () {
             const doppelganger = { value: raw };
             for (let prop in literal) {
                 const value = this[prop];
@@ -39,7 +44,11 @@ window.DeepObject = (function () {
             return doppelganger;
         };
         // Exposes the `literal` variable, so can be edited by reference outside this namespace.
-        this[SYMBOLS.register] = function (key, value) { return literal[key] = value };
+        that[SYMBOLS.register] = function (key, value) { return literal[key] = value };
+        // If the raw value its a function, we need to return that function.
+        if (typeof raw == 'function') {
+            return raw;
+        }
     };
     /**
       * Creates an object that can be accessed deeply without throwing and Exception for null or
@@ -57,6 +66,12 @@ window.DeepObject = (function () {
                 // Existing Proxies and special properties are returned rawly.
                 if (specialProperties.includes(property) || (prop && prop[SYMBOLS.isProxyValue]))
                     return prop;
+                // Read only properties are returned rawly.
+                // This node is not a `DeepObject`.
+                const descriptors = Object.getOwnPropertyDescriptor(target, property);
+                if (descriptors && !descriptors.writable) {
+                    return prop;
+                }
                 // New properties are registered as a new Proxy and returned.
                 return target[property] = target[SYMBOLS.register](property, ProxyContainer());
             },
@@ -64,6 +79,11 @@ window.DeepObject = (function () {
                 // Private setters cannot be modified.
                 if (privateSetters.includes(property))
                     return false;
+                // Read only properties are not set.
+                const descriptors = Object.getOwnPropertyDescriptor(target, property);
+                if (descriptors && !descriptors.writable) {
+                    return false;
+                }
                 // Protected setters are set as a raw value.
                 if (rawSetters.includes(property))
                     return target[property] = value;
@@ -74,10 +94,13 @@ window.DeepObject = (function () {
                     target[property].setValue(value)
                 else
                     target[property] = ProxyContainer(value);
+            },
+            construct: function (target, args) {
+                return new target(...args);
             }
         });
         // Sets the default data defined in the constructor.
-        if (typeof object == 'object') for (var addon in object) proxy[addon] = object[addon];
+        if (typeof object == 'object') for (let addon in object) proxy[addon] = object[addon];
         // Any instantiation of this function will return a `Proxy` object.
         return proxy;
     }
